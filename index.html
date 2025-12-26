@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小粥私厨 - 暖锅菜单</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(135deg, #fef9f0 0%, #fff8e8 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 雪花动画背景 */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.5em;
+            z-index: 1;
+            pointer-events: none;
+            animation: snowfall linear infinite;
+        }
+
+        @keyframes snowfall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 头部 */
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #f5e6c8 0%, #f9f1e0 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(218, 165, 32, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '❄';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2em;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .header::after {
+            content: '❄';
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            font-size: 1.5em;
+            opacity: 0.3;
+            animation: float 4s ease-in-out infinite 0.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 28px;
+            color: #8b6914;
+            font-weight: 600;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #a89968;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* 菜单分类 */
+        .menu-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            color: #8b6914;
+            margin-bottom: 18px;
+            font-weight: 600;
+            padding: 10px 0;
+            border-bottom: 2px solid rgba(218, 165, 32, 0.3);
+        }
+
+        .section-icon {
+            font-size: 28px;
+            margin-right: 12px;
+        }
+
+        /* 菜品卡片 */
+        .dish-card {
+            background: linear-gradient(135deg, #fffcf7 0%, #fef9f0 100%);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(218, 165, 32, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(218, 165, 32, 0.2);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dish-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+            pointer-events: none;
+        }
+
+        .dish-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(218, 165, 32, 0.2);
+        }
+
+        .dish-card:hover::before {
+            left: 100%;
+        }
+
+        .dish-info {
+            flex: 1;
+        }
+
+        .dish-name {
+            font-size: 16px;
+            color: #5a4a28;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .dish-desc {
+            font-size: 12px;
+            color: #a89968;
+        }
+
+        .dish-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .checkbox {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #daa520;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .checkbox:hover {
+            background: rgba(218, 165, 32, 0.1);
+            transform: scale(1.1);
+        }
+
+        .checkbox.checked {
+            background: #daa520;
+            color: white;
+            box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* 底部提示 */
+        .footer-tips {
+            background: linear-gradient(135deg, #f5e6c8 0%, #f9f1e0 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 40px;
+            text-align: center;
+            font-size: 13px;
+            color: #8b6914;
+            line-height: 1.8;
+            box-shadow: 0 4px 15px rgba(218, 165, 32, 0.1);
+        }
+
+        .footer-tips strong {
+            color: #daa520;
+            font-weight: 600;
+        }
+
+        /* 雪花点缀 */
+        .snowflake-deco {
+            display: inline-block;
+            margin: 0 5px;
+            color: #daa520;
+            opacity: 0.6;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .dish-card {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 雪花背景 -->
+    <div id="snowContainer"></div>
+
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="logo">🍲</div>
+            <div class="title">小粥私厨</div>
+            <div class="subtitle">
+                当寒梅缀枝，碎雪敲窗<br>
+                冬日最温柔的邀约，藏在一锅沸腾的暖意里
+            </div>
+        </div>
+
+        <!-- 锅底 -->
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="section-icon">🍲</span>
+                <span>锅底选择</span>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">麻辣锅</div>
+                    <div class="dish-desc">红油翻滚，麻辣醇厚</div>
+                </div>
+                <div class="checkbox checked"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">清汤锅</div>
+                    <div class="dish-desc">清汤鲜香，本味原真</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">酸汤锅</div>
+                    <div class="dish-desc">酸汤开胃，回味悠长</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+        </div>
+
+        <!-- 特色菜 -->
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="section-icon">💎</span>
+                <span>特色菜</span>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">满籽满膏海兔</div>
+                    <div class="dish-desc">笔管鱿鱼 180g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">小八爪鱼</div>
+                    <div class="dish-desc">去内脏 200g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">脆肉皖鱼片</div>
+                    <div class="dish-desc">老广鲜鱼 200g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">脆嫩海参片</div>
+                    <div class="dish-desc">优质海参 100g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">生蚝</div>
+                    <div class="dish-desc">鲜活肥美 200g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">香卤肥肠</div>
+                    <div class="dish-desc">火锅必点 120g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+        </div>
+
+        <!-- 荤菜 -->
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="section-icon">🥩</span>
+                <span>荤菜</span>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">谷饲嫩黄牛肉</div>
+                    <div class="dish-desc">入口即化 120g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">内蒙羔羊肉</div>
+                    <div class="dish-desc">新鲜嫩滑 200g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">安格斯嫩肉吊龙</div>
+                    <div class="dish-desc">进口优质 230g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">科尔沁鲜切肥牛</div>
+                    <div class="dish-desc">手工鲜切 120g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">潮汕牛筋丸</div>
+                    <div class="dish-desc">Q弹爽口 150g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">虾滑</div>
+                    <div class="dish-desc">鲜虾肉泥 120g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">牛奶鸭血</div>
+                    <div class="dish-desc">嫩滑鲜香</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+        </div>
+
+        <!-- 素菜 -->
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="section-icon">🍃</span>
+                <span>素菜</span>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">豌豆嫩尖</div>
+                    <div class="dish-desc">时令新鲜 250g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">叶子菜组合</div>
+                    <div class="dish-desc">蒿子杆、娃娃菜 450g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">黄金炸豆皮</div>
+                    <div class="dish-desc">酥脆可口 700g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">土豆片</div>
+                    <div class="dish-desc">爽脆入味 500g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">有机海带苗</div>
+                    <div class="dish-desc">养生健康 200g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">豆腐</div>
+                    <div class="dish-desc">软滑鲜嫩 400g</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+        </div>
+
+        <!-- 主食 -->
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="section-icon">🍜</span>
+                <span>主食</span>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">宽粉</div>
+                    <div class="dish-desc">吸汤入味，Q弹满口</div>
+                </div>
+                <div class="checkbox checked"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">手擀面</div>
+                    <div class="dish-desc">劲道爽滑</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">水饺</div>
+                    <div class="dish-desc">馅料随机</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+        </div>
+
+        <!-- 饮品 -->
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="section-icon">🥤</span>
+                <span>饮品</span>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">天然椰汁</div>
+                    <div class="dish-desc">清凉解腻</div>
+                </div>
+                <div class="checkbox checked"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">手工冰菊花水</div>
+                    <div class="dish-desc">清热降火</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">可乐</div>
+                    <div class="dish-desc">冰爽碳酸</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+            <div class="dish-card" onclick="toggleSelect(this)">
+                <div class="dish-info">
+                    <div class="dish-name">啤酒</div>
+                    <div class="dish-desc">冰镇畅饮</div>
+                </div>
+                <div class="checkbox"></div>
+            </div>
+        </div>
+
+        <!-- 底部提示 -->
+        <div class="footer-tips">
+            <div>🎁 <strong>御膳房定位 ➕ 收藏</strong></div>
+            <div style="margin-top: 10px; color: #daa520;">更有隐藏款水果赠送</div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(218, 165, 32, 0.3);">
+                <span class="snowflake-deco">❄</span>
+                下期预告：韩式部队火锅
+                <span class="snowflake-deco">❄</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 雪花背景效果
+        function createSnowflakes() {
+            const container = document.getElementById('snowContainer');
+            const snowflakeSymbols = ['❄', '✨', '❅'];
+            
+            for (let i = 0; i < 15; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = snowflakeSymbols[Math.floor(Math.random() * snowflakeSymbols.length)];
+                
+                const left = Math.random() * 100;
+                const duration = 10 + Math.random() * 8;
+                const delay = Math.random() * 5;
+                const opacity = 0.3 + Math.random() * 0.5;
+                
+                snowflake.style.left = left + '%';
+                snowflake.style.animation = `snowfall ${duration}s linear infinite ${delay}s`;
+                snowflake.style.opacity = opacity;
+                
+                container.appendChild(snowflake);
+            }
+        }
+
+        // 菜品选择切换
+        function toggleSelect(element) {
+            const checkbox = element.querySelector('.checkbox');
+            checkbox.classList.toggle('checked');
+        }
+
+        // 初始化
+        createSnowflakes();
+    </script>
+</body>
+</html>
